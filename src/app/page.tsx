@@ -1,3 +1,5 @@
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#ededed] flex flex-col items-center justify-between font-sans">
@@ -47,7 +49,7 @@ export default function Home() {
         <section className="w-full flex justify-center px-4 mb-24">
 
           <img
-            src="/lsync-demo.svg"
+            src={`${basePath}/lsync-demo.svg`}
             alt="lsync CLI demo"
             className="w-full max-w-5xl rounded-2xl border-2 border-[#2e2e2e] shadow-2xl"
           />

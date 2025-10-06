@@ -1,0 +1,60 @@
+name: Deploy landing to VPS
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'landing/**'
+      - 'landing/.github/workflows/deploy-site.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: 'deploy-landing'
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      SITE_TARGET_DIR: ${{ secrets.SITE_TARGET_DIR }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'landing/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: landing
+        run: npm ci
+
+      - name: Build static site
+        working-directory: landing
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: npm run build
+
+      - name: Prepare SSH key
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Create target directory on server
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "mkdir -p \"$SITE_TARGET_DIR\""
+
+      - name: Sync build to server via rsync
+        run: |
+          rsync -az --delete -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=no" landing/out/ "$SSH_USER@$SSH_HOST:$SITE_TARGET_DIR/"
+
