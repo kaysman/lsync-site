@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Localyze Sync — Landing Site
 
-## Getting Started
+A static marketing site for the Localyze Sync CLI (lsync). Built with Next.js App Router and Tailwind CSS 4, exported as a static site for easy hosting.
 
-First, run the development server:
+## Tech Stack
 
-```bash
+- Next.js 15 (App Router, static export)
+- React 19
+- Tailwind CSS 4 via `@tailwindcss/postcss`
+
+## Local Development
+
+Requirements:
+
+- Node.js 18+ (LTS recommended)
+
+Run the dev server:
+
+```
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Edit content:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Page content: `src/app/page.tsx`
+- Global styles: `src/app/globals.css`
+- Metadata (title/description/icon): `src/app/layout.tsx`
+- Assets: `public/` (e.g., `favicon.png`, `lsync-demo.svg`)
 
-## Learn More
+## Build and Export
 
-To learn more about Next.js, take a look at the following resources:
+This project is configured for static export (`next.config.ts` sets `output: 'export'`).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Build the site:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+npm run build
+```
 
-## Deploy on Vercel
+The static site is emitted to `out/`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Preview the static build locally:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+npx serve out
+# or
+python3 -m http.server -d out 3000
+```
+
+Note: `npm run start` starts a Next.js server and is not used for static exports. Prefer previewing `out/` with a static file server.
+
+## Deploy
+
+Because this is a static export, you can deploy the `out/` directory to any static host:
+
+- Vercel: Build command `npm run build`, output directory `out/`
+- Netlify: Build command `npm run build`, publish directory `out/`
+- Cloudflare Pages: Build command `npm run build`, output `out/`
+- GitHub Pages: Push the contents of `out/` to a `gh-pages` branch (or use an action)
+
+## Linting
+
+Run ESLint:
+
+```
+npm run lint
+```
+
+## Tailwind Notes
+
+- Tailwind is enabled via PostCSS plugin (`postcss.config.mjs`)
+- Global import is in `src/app/globals.css` (`@import "tailwindcss"`)
+- Use utility classes directly in components
+
+## Project Structure
+
+```
+landing/
+  public/            # static assets (favicon, images)
+  src/app/           # Next.js app router
+    layout.tsx       # document shell + metadata
+    page.tsx         # landing page content
+    globals.css      # global styles + Tailwind
+  next.config.ts     # output: 'export'
+  package.json       # scripts and deps
+```
+
+## Customization Checklist
+
+- Update copy and CTAs in `src/app/page.tsx`
+- Replace images in `public/` if needed
+- Adjust SEO metadata in `src/app/layout.tsx`
+- If you need dynamic features, remove `output: 'export'` in `next.config.ts`
+
